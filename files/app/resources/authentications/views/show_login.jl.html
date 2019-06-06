@@ -1,0 +1,15 @@
+<h1>Authentication</h1>
+<p>
+  Please authenticate in order to proceed to the requested resource.
+</p>
+<form method=POST action="$(Genie.Router.to_link(:login))">
+  <label for="auth_username">Username</label>
+  <input type="text id="auth_username" name="auth_username" />
+  <br/>
+
+  <label for="auth_password">Password</label>
+  <input type="text id="auth_password" name="auth_password" />
+  <br/>
+
+  <input type="submit" value="Authenticate" />
+</form>
