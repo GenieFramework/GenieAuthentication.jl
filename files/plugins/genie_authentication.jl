@@ -1,10 +1,9 @@
-using Genie, Genie.Router, AuthenticationsController
-using Genie.Loggers
+using Genie, Genie.Router, AuthenticationController
 
-route("/login", AuthenticationsController.show_login, named = :show_login)
-route("/login", AuthenticationsController.login, method = POST, named = :login)
-route("/logout", AuthenticationsController.logout, named = :logout)
+route("/login", AuthenticationController.show_login, named = :show_login)
+route("/login", AuthenticationController.login, method = POST, named = :login)
+route("/logout", AuthenticationController.logout, named = :logout)
+route("/register", AuthenticationController.show_register, named = :show_register)
+route("/register", AuthenticationController.register, method = POST, named = :register)
 
 Genie.config.session_auto_start = true
-
-log("You can further customise the behaviour of GenieAuthentication at $(@__FILE__)")
