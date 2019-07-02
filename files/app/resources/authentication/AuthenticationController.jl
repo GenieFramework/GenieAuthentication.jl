@@ -6,6 +6,8 @@ using SearchLight, SearchLight.QueryBuilder
 using GenieAuthentication
 using Users
 
+Genie.config.session_auto_start = true
+
 function show_login()
   html!(:authentication, :login, context = @__MODULE__)
 end
