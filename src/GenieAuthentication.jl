@@ -19,10 +19,10 @@ const USER_ID_KEY = :__auth_user_id
 
 Stores the user id on the session.
 """
-function authenticate(user_id::Union{String,Symbol,Int}, session) :: Sessions.Session
+function authenticate(user_id::Union{String,Symbol,Int}, session::Session) :: Sessions.Session
   Sessions.set!(session, USER_ID_KEY, user_id)
 end
-function authenticate(user_id::Union{String,Symbol,Int}, params) :: Sessions.Session
+function authenticate(user_id::Union{String,Symbol,Int}, params::Dict) :: Sessions.Session
   authenticate(user_id, params[:SESSION])
 end
 
@@ -33,10 +33,10 @@ end
 
 Removes the user id from the session.
 """
-function deauthenticate(session) :: Sessions.Session
+function deauthenticate(session::Session) :: Sessions.Session
   Sessions.unset!(session, USER_ID_KEY)
 end
-function deauthenticate(params) :: Sessions.Session
+function deauthenticate(params::Dict) :: Sessions.Session
   deauthenticate(params[:SESSION])
 end
 
@@ -47,10 +47,10 @@ end
 
 Returns `true` if a user id is stored on the session.
 """
-function is_authenticated(session) :: Bool
+function is_authenticated(session::Session) :: Bool
   Sessions.is_set(session, USER_ID_KEY)
 end
-function is_authenticated(params) :: Bool
+function is_authenticated(params::Dict) :: Bool
   is_authenticated(params[:SESSION])
 end
 
@@ -61,10 +61,10 @@ end
 
 Returns the user id stored on the session, if available.
 """
-function get_authentication(session) :: Nullable
+function get_authentication(session::Session) :: Nullable
   Sessions.get(session, USER_ID_KEY)
 end
-function get_authentication(params) :: Nullable
+function get_authentication(params::Dict) :: Nullable
   get_authentication(params[:SESSION])
 end
 
@@ -75,10 +75,10 @@ end
 
 Persists on session the id of the user object and returns the session.
 """
-function login(user, session) :: Nullable{Sessions.Session}
+function login(user, session::Session) :: Nullable{Sessions.Session}
   authenticate(getfield(user, Symbol(user._id)) |> Base.get, session) |> Nullable{Sessions.Session}
 end
-function login(user, params) :: Nullable{Sessions.Session}
+function login(user, params::Dict) :: Nullable{Sessions.Session}
   login(user, params[:SESSION])
 end
 
@@ -89,10 +89,10 @@ end
 
 Deletes the id of the user object from the session, effectively logging the user off.
 """
-function logout(session) :: Sessions.Session
+function logout(session::Session) :: Sessions.Session
   deauthenticate(session)
 end
-function logout(params) :: Sessions.Session
+function logout(params::Dict) :: Sessions.Session
   logout(params[:SESSION])
 end
 
@@ -103,14 +103,14 @@ end
 
 Invokes `f` only if a user is currently authenticated on the session, `fallback` is invoked otherwise.
 """
-function with_authentication(f::Function, fallback::Function, session)
+function with_authentication(f::Function, fallback::Function, session::Session)
   if ! is_authenticated(session)
     fallback()
   else
     f()
   end
 end
-function with_authentication(f::Function, fallback::Function, params)
+function with_authentication(f::Function, fallback::Function, params::Dict)
   with_authentication(f, fallback, params[:SESSION])
 end
 
@@ -121,10 +121,10 @@ end
 
 Invokes `f` if there is no user authenticated on the current session.
 """
-function without_authentication(f::Function, session)
+function without_authentication(f::Function, session::Session)
   ! is_authenticated(session) && f()
 end
-function without_authentication(f::Function, params)
+function without_authentication(f::Function, params::Dict)
   without_authentication(f, params[:SESSION])
 end
 
