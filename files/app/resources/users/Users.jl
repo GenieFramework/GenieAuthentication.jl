@@ -1,6 +1,7 @@
 module Users
 
 using SearchLight, SearchLight.Validation, UsersValidator
+using SHA
 
 export User
 
@@ -41,23 +42,28 @@ mutable struct User <: AbstractModel
 
     ### VALIDATION
     validator = ModelValidator([
-      ValidationRule(:username, UsersValidator.not_empty)
+      ValidationRule(:username, UsersValidator.not_empty),
+      ValidationRule(:username, UsersValidator.unique),
+      ValidationRule(:password, UsersValidator.not_empty),
+      ValidationRule(:email,    UsersValidator.not_empty),
+      ValidationRule(:email,    UsersValidator.unique),
+      ValidationRule(:name,     UsersValidator.not_empty)
     ]),
 
     ### CALLBACKS
-    # before_save = (m::Todo) -> begin
+    # before_save = (m::User) -> begin
     #   @info "Before save"
     # end,
-    # after_save = (m::Todo) -> begin
+    # after_save = (m::User) -> begin
     #   @info "After save"
     # end,
-    # on_save = (m::Todo, field::Symbol, value::Any) -> begin
+    # on_save = (m::User, field::Symbol, value::Any) -> begin
     #   @info "On save"
     # end,
-    # on_find = (m::Todo, field::Symbol, value::Any) -> begin
+    # on_find = (m::User, field::Symbol, value::Any) -> begin
     #   @info "On find"
     # end,
-    # after_find = (m::Todo) -> begin
+    # after_find = (m::User) -> begin
     #   @info "After find"
     # end,
 
@@ -70,6 +76,10 @@ mutable struct User <: AbstractModel
           # before_save, after_save, on_save, on_find, after_find                       ### CALLBACKS
           # scopes                                                                      ### SCOPES
           )
+end
+
+function hash_password(password::String)
+  sha256(password) |> bytes2hex
 end
 
 end
