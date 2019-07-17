@@ -44,7 +44,7 @@ function register()
     GenieAuthentication.authenticate(user.id, Sessions.session(@params))
     "Registration successful"
   catch ex
-    flash(string(ex))
+    flash(ex.msg)
     redirect_to(:show_register)
   end
 end
