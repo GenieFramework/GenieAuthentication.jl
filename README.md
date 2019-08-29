@@ -70,5 +70,5 @@ Now that we have a functional authentication system, we can use a Genie controll
 before() = authenticated() || throw(ExceptionalResponse(redirect(:show_login)))
 ```
 
-The `before` hook will automatically be invoked by `Genie.Router` before actually executing the route handler. By throwing an `ExceptionalResponse` exception we fore a redirect to the `:show_login` route which displays the login form.
+The `before` hook will automatically be invoked by `Genie.Router` before actually executing the route handler. By throwing an `ExceptionalResponse` `Exception` we force a redirect to the `:show_login` route which displays the login form.
 
