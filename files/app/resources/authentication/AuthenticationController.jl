@@ -1,6 +1,6 @@
 module AuthenticationController
 
-using Genie, Genie.Renderer, Genie.Router, Genie.Sessions, Genie.Helpers
+using Genie, Genie.Renderer, Genie.Router, Genie.Sessions, Genie.Flash
 using ViewHelper
 using SearchLight, SearchLight.QueryBuilder
 using GenieAuthentication
@@ -9,7 +9,7 @@ using Users
 Genie.config.session_auto_start = true
 
 function show_login()
-  html!(:authentication, :login, context = @__MODULE__)
+  html(:authentication, :login, context = @__MODULE__)
 end
 
 function login()
@@ -19,19 +19,24 @@ function login()
     user = SearchLight.find_one_by!!(User, query)
     GenieAuthentication.authenticate(user.id, Sessions.session(@params))
 
-    "Authentication successful"
+    redirect(:get_home)
   catch ex
     flash("Authentication failed")
-    redirect_to(:show_login)
+
+    redirect(:show_login)
   end
 end
 
 function logout()
   GenieAuthentication.deauthenticate(Sessions.session(@params))
+
+  flash("Good bye! ")
+
+  redirect(:show_login)
 end
 
 function show_register()
-  html!(:authentication, :register, context = @__MODULE__)
+  html(:authentication, :register, context = @__MODULE__)
 end
 
 function register()
@@ -45,7 +50,8 @@ function register()
     "Registration successful"
   catch ex
     flash(ex.msg)
-    redirect_to(:show_register)
+
+    redirect(:show_register)
   end
 end
 

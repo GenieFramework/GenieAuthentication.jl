@@ -3,11 +3,11 @@ Functionality for authenticating Genie users.
 """
 module GenieAuthentication
 
-using Genie, Genie.Sessions, Genie.Plugins, Genie.Router, SearchLight
+using Genie, Genie.Sessions, Genie.Plugins, Genie.Router, SearchLight, Genie.Requests
 using Nullables
 
 export current_user, current_user!!
-export authenticate, deauthenticate, is_authenticated, get_authentication
+export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication
 
 const USER_ID_KEY = :__auth_user_id
@@ -26,6 +26,9 @@ end
 function authenticate(user_id::Union{String,Symbol,Int,Nullable}, params::Union{Router.Params,Dict{Symbol,Any}}) :: Sessions.Session
   authenticate(user_id, params[:SESSION])
 end
+function authenticate(user_id::Union{String,Symbol,Int,Nullable}) :: Sessions.Session
+  authenticate(user_id, payload()[:SESSION])
+end
 
 
 """
@@ -40,6 +43,9 @@ end
 function deauthenticate(params::Union{Router.Params,Dict{Symbol,Any}}) :: Sessions.Session
   deauthenticate(params[:SESSION])
 end
+function deauthenticate() :: Sessions.Session
+  deauthenticate(payload()[:SESSION])
+end
 
 
 """
@@ -49,10 +55,13 @@ end
 Returns `true` if a user id is stored on the session.
 """
 function is_authenticated(session::Union{Sessions.Session,Nothing}) :: Bool
-  Sessions.is_set(session, USER_ID_KEY)
+  Sessions.isset(session, USER_ID_KEY)
 end
 function is_authenticated(params::Union{Router.Params,Dict{Symbol,Any}}) :: Bool
   is_authenticated(params[:SESSION])
+end
+function is_authenticated() :: Bool
+  is_authenticated(payload()[:SESSION])
 end
 const authenticated = is_authenticated
 
@@ -69,6 +78,9 @@ end
 function get_authentication(params::Union{Router.Params,Dict{Symbol,Any}}) :: Nullable
   get_authentication(params[:SESSION])
 end
+function get_authentication() :: Nullable
+  get_authentication(payload()[:SESSION])
+end
 const authentication = get_authentication
 
 
@@ -84,6 +96,9 @@ end
 function login(user, params::Union{Router.Params,Dict{Symbol,Any}}) :: Nullable{Sessions.Session}
   login(user, params[:SESSION])
 end
+function login(user) :: Nullable{Sessions.Session}
+  login(user, payload()[:SESSION])
+end
 
 
 """
@@ -97,6 +112,9 @@ function logout(session::Sessions.Session) :: Sessions.Session
 end
 function logout(params::Union{Router.Params,Dict{Symbol,Any}}) :: Sessions.Session
   logout(params[:SESSION])
+end
+function logout() :: Sessions.Session
+  logout(payload()[:SESSION])
 end
 
 
@@ -116,6 +134,9 @@ end
 function with_authentication(f::Function, fallback::Function, params::Union{Router.Params,Dict{Symbol,Any}})
   with_authentication(f, fallback, params[:SESSION])
 end
+function with_authentication(f::Function, fallback::Function)
+  with_authentication(f, fallback, payload()[:SESSION])
+end
 
 
 """
@@ -129,6 +150,9 @@ function without_authentication(f::Function, session::Sessions.Session)
 end
 function without_authentication(f::Function, params::Union{Router.Params,Dict{Symbol,Any}})
   without_authentication(f, params[:SESSION])
+end
+function without_authentication(f::Function)
+  without_authentication(f, payload()[:SESSION])
 end
 
 
