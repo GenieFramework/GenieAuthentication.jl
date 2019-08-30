@@ -9,6 +9,8 @@ function not_empty(field::Symbol, m::T, args::Vararg{Any})::ValidationResult whe
 end
 
 function unique(field::Symbol, m::T, args::Vararg{Any})::ValidationResult where {T<:AbstractModel}
+  ispersisted(m) && return ValidationResult(valid) # don't validate updates
+
   if SearchLight.count(typeof(m), where("$field = ?", getfield(m, field))) > 0
     return ValidationResult(invalid, :unique, "is already used")
   end
