@@ -5,7 +5,7 @@
   <span>$(output_flash(@params))</span>
 </p>
 
-<form method="POST" action="$(linkto(:register))">
+<form method="POST" action="$(linkto(:register))" enctype="multipart/form-data">
   <div class="form-group">
     <label _for="auth_username">Username</label>
     <input type="text" id="auth_username" name="username" class="form-control" placeholder="User" />

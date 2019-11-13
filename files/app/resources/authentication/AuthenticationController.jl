@@ -2,7 +2,7 @@ module AuthenticationController
 
 using Genie, Genie.Renderer, Genie.Router, Genie.Sessions, Genie.Flash
 using ViewHelper
-using SearchLight, SearchLight.QueryBuilder
+using SearchLight
 using GenieAuthentication
 using Users
 
@@ -13,10 +13,8 @@ function show_login()
 end
 
 function login()
-  query = where("username = ?", @params(:username)) + where("password = ?", @params(:password) |> Users.hash_password)
-
   try
-    user = SearchLight.find_one_by!!(User, query)
+    user = SearchLight.findone(User, username = @params(:username), password = Users.hash_password(@params(:password)))
     GenieAuthentication.authenticate(user.id, Sessions.session(@params))
 
     redirect(:get_home)

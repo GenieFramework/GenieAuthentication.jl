@@ -1,8 +1,14 @@
 <h1 class="display-3">Login</h1>
 
+<div class="bs-callout bs-callout-primary">
+  <p>
+    Please authenticate in order to access the information.
+  </p>
+</div>
+
 <span>$(output_flash())</span>
 
-<form method="POST" action="$(linkto(:login))" class="">
+<form method="POST" action="$(linkto(:login))" class="" enctype="multipart/form-data">
   <div class="form-group">
     <label _for="auth_username">Username</label>
     <input type="text" id="auth_username" name="username" class="form-control" placeholder="User" />
