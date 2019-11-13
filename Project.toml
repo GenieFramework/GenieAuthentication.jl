@@ -10,3 +10,5 @@ SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 
 [compat]
 julia = "1"
+Genie = "0.20.1"
+SearchLight = "0.14.1"
