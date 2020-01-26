@@ -3,9 +3,8 @@ Functionality for authenticating Genie users.
 """
 module GenieAuthentication
 
-using Genie, Genie.Sessions, Genie.Plugins, Genie.Router, SearchLight, Genie.Requests
+import Genie, SearchLight
 
-export current_user, current_user!!
 export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication
 
@@ -15,13 +14,13 @@ const USER_ID_KEY = :__auth_user_id
 """
 Stores the user id on the session.
 """
-function authenticate(user_id::Any, session::Sessions.Session) :: Sessions.Session
-  Sessions.set!(session, USER_ID_KEY, user_id)
+function authenticate(user_id::Any, session::Genie.Sessions.Session) :: Genie.Sessions.Session
+  Genie.Sessions.set!(session, USER_ID_KEY, user_id)
 end
-function authenticate(user::SearchLight.DbId, session::Sessions.Session)
+function authenticate(user::SearchLight.DbId, session::Genie.Sessions.Session)
   authenticate(Int(user.value), session)
 end
-function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = payload()) :: Sessions.Session
+function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Genie.Sessions.Session
   authenticate(user_id, params[:SESSION])
 end
 
@@ -32,10 +31,10 @@ end
 
 Removes the user id from the session.
 """
-function deauthenticate(session::Sessions.Session) :: Sessions.Session
-  Sessions.unset!(session, USER_ID_KEY)
+function deauthenticate(session::Genie.Sessions.Session) :: Genie.Sessions.Session
+  Genie.Sessions.unset!(session, USER_ID_KEY)
 end
-function deauthenticate(params::Dict{Symbol,Any} = payload()) :: Sessions.Session
+function deauthenticate(params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Genie.Sessions.Session
   deauthenticate(params[:SESSION])
 end
 
@@ -46,12 +45,13 @@ end
 
 Returns `true` if a user id is stored on the session.
 """
-function is_authenticated(session::Union{Sessions.Session,Nothing}) :: Bool
-  Sessions.isset(session, USER_ID_KEY)
+function is_authenticated(session::Union{Genie.Sessions.Session,Nothing}) :: Bool
+  Genie.Sessions.isset(session, USER_ID_KEY)
 end
-function is_authenticated(params::Dict{Symbol,Any} = payload()) :: Bool
+function is_authenticated(params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Bool
   is_authenticated(params[:SESSION])
 end
+
 const authenticated = is_authenticated
 
 
@@ -61,12 +61,13 @@ const authenticated = is_authenticated
 
 Returns the user id stored on the session, if available.
 """
-function get_authentication(session::Sessions.Session) :: Union{Nothing,Any}
-  Sessions.get(session, USER_ID_KEY)
+function get_authentication(session::Genie.Sessions.Session) :: Union{Nothing,Any}
+  Genie.Sessions.get(session, USER_ID_KEY)
 end
-function get_authentication(params::Dict{Symbol,Any} = payload()) :: Union{Nothing,Any}
+function get_authentication(params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Union{Nothing,Any}
   get_authentication(params[:SESSION])
 end
+
 const authentication = get_authentication
 
 
@@ -76,10 +77,10 @@ const authentication = get_authentication
 
 Persists on session the id of the user object and returns the session.
 """
-function login(user, session::Sessions.Session) :: Union{Nothing,Sessions.Session}
+function login(user, session::Genie.Sessions.Session) :: Union{Nothing,Genie.Sessions.Session}
   authenticate(getfield(user, Symbol(user._id)), session)
 end
-function login(user, params::Dict{Symbol,Any} = payload()) :: Union{Nothing,Sessions.Session}
+function login(user, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Union{Nothing,Genie.Sessions.Session}
   login(user, params[:SESSION])
 end
 
@@ -90,10 +91,10 @@ end
 
 Deletes the id of the user object from the session, effectively logging the user off.
 """
-function logout(session::Sessions.Session) :: Sessions.Session
+function logout(session::Genie.Sessions.Session) :: Genie.Sessions.Session
   deauthenticate(session)
 end
-function logout(params::Dict{Symbol,Any} = payload()) :: Sessions.Session
+function logout(params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Genie.Sessions.Session
   logout(params[:SESSION])
 end
 
@@ -104,14 +105,14 @@ end
 
 Invokes `f` only if a user is currently authenticated on the session, `fallback` is invoked otherwise.
 """
-function with_authentication(f::Function, fallback::Function, session::Union{Sessions.Session,Nothing})
+function with_authentication(f::Function, fallback::Function, session::Union{Genie.Sessions.Session,Nothing})
   if ! is_authenticated(session)
     fallback()
   else
     f()
   end
 end
-function with_authentication(f::Function, fallback::Function, params::Dict{Symbol,Any} = payload())
+function with_authentication(f::Function, fallback::Function, params::Dict{Symbol,Any} = Genie.Requests.payload())
   with_authentication(f, fallback, params[:SESSION])
 end
 
@@ -122,10 +123,10 @@ end
 
 Invokes `f` if there is no user authenticated on the current session.
 """
-function without_authentication(f::Function, session::Sessions.Session)
+function without_authentication(f::Function, session::Genie.Sessions.Session)
   ! is_authenticated(session) && f()
 end
-function without_authentication(f::Function, params::Dict{Symbol,Any} = payload())
+function without_authentication(f::Function, params::Dict{Symbol,Any} = Genie.Requests.payload())
   without_authentication(f, params[:SESSION])
 end
 

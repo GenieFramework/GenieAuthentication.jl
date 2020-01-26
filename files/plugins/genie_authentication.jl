@@ -1,9 +1,17 @@
-using Genie, Genie.Router, AuthenticationController
+using Genie
+
+Genie.Sessions.init()
+
+using Genie.Router
+import AuthenticationController
 
 route("/login", AuthenticationController.show_login, named = :show_login)
 route("/login", AuthenticationController.login, method = POST, named = :login)
 route("/logout", AuthenticationController.logout, named = :logout)
-route("/register", AuthenticationController.show_register, named = :show_register)
-route("/register", AuthenticationController.register, method = POST, named = :register)
 
-Genie.config.session_auto_start = true
+#===#
+
+# UNCOMMENT TO ENABLE REGISTRATION ROUTES
+
+# route("/register", AuthenticationController.show_register, named = :show_register)
+# route("/register", AuthenticationController.register, method = POST, named = :register)

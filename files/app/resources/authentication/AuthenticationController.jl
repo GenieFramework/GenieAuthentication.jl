@@ -1,12 +1,11 @@
 module AuthenticationController
 
-using Genie, Genie.Renderer, Genie.Router, Genie.Sessions, Genie.Flash
+using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.Router
 using ViewHelper
 using SearchLight
 using GenieAuthentication
 using Users
-
-Genie.config.session_auto_start = true
+using Logging
 
 function show_login()
   html(:authentication, :login, context = @__MODULE__)
@@ -14,42 +13,43 @@ end
 
 function login()
   try
-    user = SearchLight.findone(User, username = @params(:username), password = Users.hash_password(@params(:password)))
-    GenieAuthentication.authenticate(user.id, Sessions.session(@params))
+    user = SearchLight.findone(User, username = Genie.Router.@params(:username), password = Users.hash_password(Genie.Router.@params(:password)))
+    GenieAuthentication.authenticate(user.id, Genie.Sessions.session(Genie.Router.@params))
 
-    redirect(:get_home)
+    Genie.Renderer.redirect(:get_home)
   catch ex
-    flash("Authentication failed")
+    Genie.Flash.flash("Authentication failed")
 
-    redirect(:show_login)
+    Genie.Renderer.redirect(:show_login)
   end
 end
 
 function logout()
-  GenieAuthentication.deauthenticate(Sessions.session(@params))
+  GenieAuthentication.deauthenticate(Genie.Sessions.session(Genie.Router.@params))
 
-  flash("Good bye! ")
+  Genie.Flash.flash("Good bye! ")
 
-  redirect(:show_login)
+  Genie.Renderer.redirect(:show_login)
 end
 
 function show_register()
-  html(:authentication, :register, context = @__MODULE__)
+  Genie.Renderer.Html.html(:authentication, :register, context = @__MODULE__)
 end
 
 function register()
   try
-    user = SearchLight.save!!(User( username  = @params(:username),
-                                    password  = @params(:password) |> Users.hash_password,
-                                    name      = @params(:name),
-                                    email     = @params(:email)))
+    user = SearchLight.save!!(User( username  = Genie.Router.@params(:username),
+                                    password  = Genie.Router.@params(:password) |> Users.hash_password,
+                                    name      = Genie.Router.@params(:name),
+                                    email     = Genie.Router.@params(:email)))
 
-    GenieAuthentication.authenticate(user.id, Sessions.session(@params))
+    GenieAuthentication.authenticate(user.id, Genie.Sessions.session(Genie.Router.@params))
+
     "Registration successful"
   catch ex
-    flash(ex.msg)
+    Genie.Flash.flash(ex.msg)
 
-    redirect(:show_register)
+    Genie.Renderer.redirect(:show_register)
   end
 end
 
