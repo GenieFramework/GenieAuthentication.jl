@@ -1,7 +1,6 @@
 module AuthenticationController
 
 using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.Router
-using ViewHelper
 using SearchLight
 using GenieAuthentication
 using Users
