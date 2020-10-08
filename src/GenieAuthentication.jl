@@ -140,7 +140,7 @@ function install(dest::String; force = false, debug = false)
   for f in readdir(src)
     isdir(f) || continue
     debug && "Installing from $(joinpath(src, f))"
-    Genie.Plugins.install(joinpath(src, f), dest, force = force, debug = debug)
+    Genie.Plugins.install(joinpath(src, f), dest, force = force)
   end
 end
 
