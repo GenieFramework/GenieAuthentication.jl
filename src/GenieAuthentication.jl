@@ -134,7 +134,7 @@ end
 """
 """
 function install(dest::String; force = false, debug = false)
-  src = abspath(normpath(joinpath(pathof(@__MODULE__), "..", Genie.Plugins.FILES_FOLDER)))
+  src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", Genie.Plugins.FILES_FOLDER)))
   debug && @info "Preparing to install from $src into $dest"
 
   for f in readdir(src)
