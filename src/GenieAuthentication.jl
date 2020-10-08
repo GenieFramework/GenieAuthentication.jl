@@ -140,10 +140,10 @@ function install(dest::String; force = false, debug = false)
   debug && @info "Found these to install $(readdir(src))"
 
   for f in readdir(src)
-    debug && @info "Processing $f"
-    debug && @info "$(isdir(f))"
+    debug && @info "Processing $(joinpath(src, f))"
+    debug && @info "$(isdir(joinpath(src, f)))"
 
-    isdir(f) || continue
+    isdir(joinpath(src, f)) || continue
 
     debug && "Installing from $(joinpath(src, f))"
 
