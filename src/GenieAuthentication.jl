@@ -135,12 +135,18 @@ end
 """
 function install(dest::String; force = false, debug = false)
   src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", Genie.Plugins.FILES_FOLDER)))
+
   debug && @info "Preparing to install from $src into $dest"
-  debug && @info "Found these files to install $(readdir(src))"
+  debug && @info "Found these to install $(readdir(src))"
 
   for f in readdir(src)
+    debug && @info "Processing $f"
+    debug && @info "$(isdir(f))"
+
     isdir(f) || continue
+
     debug && "Installing from $(joinpath(src, f))"
+
     Genie.Plugins.install(joinpath(src, f), dest, force = force)
   end
 end
