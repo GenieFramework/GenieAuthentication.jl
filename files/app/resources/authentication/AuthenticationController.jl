@@ -3,6 +3,7 @@ module AuthenticationController
 using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.Router
 using SearchLight
 using GenieAuthentication
+using ViewHelper
 using Users
 using Logging
 
@@ -37,7 +38,7 @@ end
 
 function register()
   try
-    user = SearchLight.save!!(User( username  = Genie.Router.@params(:username),
+    user = SearchLight.save!(User( username  = Genie.Router.@params(:username),
                                     password  = Genie.Router.@params(:password) |> Users.hash_password,
                                     name      = Genie.Router.@params(:name),
                                     email     = Genie.Router.@params(:email)))
@@ -46,7 +47,11 @@ function register()
 
     "Registration successful"
   catch ex
-    Genie.Flash.flash(ex.msg)
+    if hasfield(typeof(ex), :msg)
+      Genie.Flash.flash(ex.msg)
+    else
+      rethrow(ex)
+    end
 
     Genie.Renderer.redirect(:show_register)
   end
