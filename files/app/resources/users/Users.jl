@@ -12,17 +12,16 @@ Base.@kwdef mutable struct User <: AbstractModel
   password::String = ""
   name::String = ""
   email::String = ""
-
-  ### VALIDATION
-  # validator::ModelValidator  = ModelValidator([
-  #   ValidationRule(:username, UsersValidator.not_empty),
-  #   ValidationRule(:username, UsersValidator.unique),
-  #   ValidationRule(:password, UsersValidator.not_empty),
-  #   ValidationRule(:email,    UsersValidator.not_empty),
-  #   ValidationRule(:email,    UsersValidator.unique),
-  #   ValidationRule(:name,     UsersValidator.not_empty)
-  # ])
 end
+
+Validation.validator(u::Type{User}) = ModelValidator([
+  ValidationRule(:username, UsersValidator.not_empty),
+  ValidationRule(:username, UsersValidator.unique),
+  ValidationRule(:password, UsersValidator.not_empty),
+  ValidationRule(:email,    UsersValidator.not_empty),
+  ValidationRule(:email,    UsersValidator.unique),
+  ValidationRule(:name,     UsersValidator.not_empty)
+])
 
 function hash_password(password::String)
   sha256(password) |> bytes2hex

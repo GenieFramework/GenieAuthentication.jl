@@ -38,19 +38,21 @@ end
 
 function register()
   try
-    user = SearchLight.save!(User( username  = Genie.Router.@params(:username),
-                                    password  = Genie.Router.@params(:password) |> Users.hash_password,
-                                    name      = Genie.Router.@params(:name),
-                                    email     = Genie.Router.@params(:email)))
+    user = User(username  = Genie.Router.@params(:username),
+                password  = Genie.Router.@params(:password) |> Users.hash_password,
+                name      = Genie.Router.@params(:name),
+                email     = Genie.Router.@params(:email)) |> SearchLight.save!
 
     GenieAuthentication.authenticate(user.id, Genie.Sessions.session(Genie.Router.@params))
 
     "Registration successful"
   catch ex
+    @error ex
+
     if hasfield(typeof(ex), :msg)
       Genie.Flash.flash(ex.msg)
     else
-      rethrow(ex)
+      Genie.Flash.flash(string(ex))
     end
 
     Genie.Renderer.redirect(:show_register)
