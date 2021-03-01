@@ -1,7 +1,7 @@
 name = "GenieAuthentication"
 uuid = "e115e502-7e3a-11e9-29b2-aba8be6c6778"
 authors = ["Adrian Salceanu <e@essenciary.com>"]
-version = "0.6"
+version = "0.7"
 
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
@@ -10,5 +10,5 @@ SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 
 [compat]
 Genie = "1"
-SearchLight = "0.21"
+SearchLight = "0.21, 0.22"
 julia = "1"
