@@ -144,3 +144,15 @@ route("/you/shant/pass") do
 end
 ```
 
+--- 
+
+### Adding a user
+
+You can create a user at the REPL like this (using stronger usernames and passwords though 🙈): 
+
+```julia
+julia> u = User(email = "admin@admin", name = "Admin", password = Users.hash_password("admin"), username = "admin")
+
+julia> save!(u)
+```
+
