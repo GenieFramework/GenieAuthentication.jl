@@ -1,7 +1,7 @@
 name = "GenieAuthentication"
 uuid = "e115e502-7e3a-11e9-29b2-aba8be6c6778"
 authors = ["Adrian Salceanu <e@essenciary.com>"]
-version = "0.7"
+version = "1.0-DEV"
 
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
