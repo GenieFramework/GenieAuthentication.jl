@@ -62,6 +62,18 @@ If your app wasn't already set up to work with SearchLight, you need to add Sear
 
 ---
 
+### Set up the successful login route
+
+Upon a successful login, the plugin will redirect the user to the `:get_home` route. Please make sure you define the route and name it accordingly, ex: 
+
+```julia
+route("/admin", AdminController.index, named = :get_home)
+```
+
+If for any reason you can't define the route, you can alternatively edit the code in the `login()` function in `app/resources/authentication/AuthenticationController.jl` and change `:get_home` with your desired route. Editing the controller, however, is not recommended, as future updates might overwrite your changes. 
+
+---
+
 ### Forcing authentication
 
 Now that we have a functional authentication system, we can use a Genie controller `before` hook to force authentication. Add this to the controller files which you want placed behind auth:
@@ -70,5 +82,77 @@ Now that we have a functional authentication system, we can use a Genie controll
 before() = authenticated() || throw(ExceptionalResponse(redirect(:show_login)))
 ```
 
-The `before` hook will automatically be invoked by `Genie.Router` before actually executing the route handler. By throwing an `ExceptionalResponse` `Exception` we force a redirect to the `:show_login` route which displays the login form.
+The `before` hook will automatically be invoked by `Genie.Router` before actually executing the route handler. By throwing an `ExceptionalResponse` `Exception` we force a redirect to the `:show_login` route which displays the login form. 
+
+#### Example
+
+This is how we would limit access to a full module by forcing authentication: 
+
+```julia
+module AdminController
+
+using GenieAuthentication, Genie.Renderer, Genie.Exceptions, Genie.Renderer.Html
+
+before() = authenticated() || throw(ExceptionalResponse(redirect(:show_login)))
+
+function index()
+  h1("Welcome Admin") |> html
+end
+
+end
+```
+
+---
+**HEADS UP**
+
+If you're throwing an `ExceptionalResponse` as the result of the failed authentication, make sure to also be `using Genie.Exceptions`. 
+
+---
+
+#### Example
+
+The plugin can also be used within functions. 
+
+```julia
+module AdminController
+
+using GenieAuthentication, Genie.Renderer, Genie.Exceptions, Genie.Renderer.Html
+
+# This function _can not_ be accessed without authentication
+function index()
+  authenticated() || throw(ExceptionalResponse(redirect(:show_login)))
+  h1("Welcome Admin") |> html
+end
+
+# This function _can_ be accessed without authentication
+function terms_and_conditions()
+  # content here
+end
+
+end
+```
+
+Or even: 
+
+```julia
+using GenieAuthentication
+
+route("/you/shant/pass") do 
+  authenticated() || return "Can't touch this!"
+  
+  "You're welcome!"
+end
+```
+
+--- 
+
+### Adding a user
+
+You can create a user at the REPL like this (using stronger usernames and passwords though 🙈): 
+
+```julia
+julia> u = User(email = "admin@admin", name = "Admin", password = Users.hash_password("admin"), username = "admin")
+
+julia> save!(u)
+```
 
