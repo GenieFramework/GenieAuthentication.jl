@@ -6,7 +6,7 @@ module GenieAuthentication
 import Genie, SearchLight
 
 export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
-export login, logout, with_authentication, without_authentication
+export login, logout, with_authentication, without_authentication, @authenticated!
 
 const USER_ID_KEY = :__auth_user_id
 
@@ -17,8 +17,8 @@ Stores the user id on the session.
 function authenticate(user_id::Any, session::Genie.Sessions.Session) :: Genie.Sessions.Session
   Genie.Sessions.set!(session, USER_ID_KEY, user_id)
 end
-function authenticate(user::SearchLight.DbId, session::Genie.Sessions.Session)
-  authenticate(Int(user.value), session)
+function authenticate(user_id::SearchLight.DbId, session::Genie.Sessions.Session)
+  authenticate(Int(user_id.value), session)
 end
 function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Genie.Sessions.Session
   authenticate(user_id, params[:SESSION])
@@ -56,8 +56,18 @@ const authenticated = is_authenticated
 
 
 """
-    get_authentication(session) :: Nullable
-    get_authentication(params::Dict{Symbol,Any}) :: Nullable
+    @authenticate!(exception::E = ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+
+If the current request is not authenticated it throws an ExceptionalResponse exception.
+"""
+macro authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+  :(GenieAuthentication.authenticated() || throw($exception))
+end
+
+
+"""
+    get_authentication(session) :: Union{Nothing,Any}
+    get_authentication(params::Dict{Symbol,Any}) :: Union{Nothing,Any}
 
 Returns the user id stored on the session, if available.
 """
@@ -72,15 +82,15 @@ const authentication = get_authentication
 
 
 """
-    login(user, session) :: Nullable{Sessions.Session}
-    login(user, params::Dict{Symbol,Any}) :: Nullable{Sessions.Session}
+    login(user, session) :: Union{Nothing,Genie.Sessions.Session}
+    login(user, params::Dict{Symbol,Any}) :: Union{Nothing,Genie.Sessions.Session}
 
 Persists on session the id of the user object and returns the session.
 """
-function login(user, session::Genie.Sessions.Session) :: Union{Nothing,Genie.Sessions.Session}
-  authenticate(getfield(user, Symbol(user._id)), session)
+function login(user::M, session::Genie.Sessions.Session)::Union{Nothing,Genie.Sessions.Session} where {M<:SearchLight.AbstractModel}
+  authenticate(getfield(user, Symbol(pk(user))), session)
 end
-function login(user, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: Union{Nothing,Genie.Sessions.Session}
+function login(user::M, params::Dict{Symbol,Any} = Genie.Requests.payload())::Union{Nothing,Genie.Sessions.Session} where {M<:SearchLight.AbstractModel}
   login(user, params[:SESSION])
 end
 
@@ -132,8 +142,11 @@ end
 
 
 """
+    install(dest::String; force = false, debug = false) :: Nothing
+
+Copies the plugin's files into the host Genie application.
 """
-function install(dest::String; force = false, debug = false)
+function install(dest::String; force = false, debug = false) :: Nothing
   src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", Genie.Plugins.FILES_FOLDER)))
 
   debug && @info "Preparing to install from $src into $dest"
@@ -149,6 +162,8 @@ function install(dest::String; force = false, debug = false)
 
     Genie.Plugins.install(joinpath(src, f), dest, force = force)
   end
+
+  nothing
 end
 
 end
