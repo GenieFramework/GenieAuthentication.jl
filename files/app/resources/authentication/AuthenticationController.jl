@@ -14,8 +14,8 @@ end
 
 function login()
   try
-    user = findone(User, username = @params(:username), password = Users.hash_password(@params(:password)))
-    authenticate(user.id, Genie.Sessions.session(@params))
+    user = findone(User, username = params(:username), password = Users.hash_password(params(:password)))
+    authenticate(user.id, Genie.Sessions.session(params()))
 
     redirect(:success)
   catch ex
@@ -30,7 +30,7 @@ function success()
 end
 
 function logout()
-  deauthenticate(Genie.Sessions.session(@params))
+  deauthenticate(Genie.Sessions.session(params()))
 
   flash("Good bye! ")
 
@@ -43,12 +43,12 @@ end
 
 function register()
   try
-    user = User(username  = @params(:username),
-                password  = @params(:password) |> Users.hash_password,
-                name      = @params(:name),
-                email     = @params(:email)) |> save!
+    user = User(username  = params(:username),
+                password  = params(:password) |> Users.hash_password,
+                name      = params(:name),
+                email     = params(:email)) |> save!
 
-    authenticate(user.id, Genie.Sessions.session(@params))
+    authenticate(user.id, Genie.Sessions.session(params()))
 
     "Registration successful"
   catch ex
