@@ -4,7 +4,7 @@ Authentication plugin for `Genie.jl`
 
 ## Installation
 
-The `GenieAuthentication` package is an authentication plugin for `Genie.jl`, the highly productive Julia web framework.
+The `GenieAuthentication.jl` package is an authentication plugin for `Genie.jl`, the highly productive Julia web framework.
 As such, it requires installation within the environment of a `Genie.jl` MVC application, allowing the plugin to install
 its files (which include models, controllers, database migrations, plugins, and other files).
 
@@ -32,7 +32,7 @@ julia> ]
 (MyGenieApp) pkg> add GenieAuthentication
 ```
 
-Once added, we can use it to add its files to the `Genie.jl` app (required only upon installation):
+Once added, we can use its `install` function to add its files to the `Genie.jl` app (required only upon installation):
 
 ```julia
 julia> using GenieAuthentication
@@ -40,7 +40,7 @@ julia> using GenieAuthentication
 julia> GenieAuthentication.install(@__DIR__)
 ```
 
-The above command will set up the plugin's files within your Genie app (will potentially add new views, controllers, models, migrations, initializers, etc).
+The above command will set up the plugin's files within your `Genie.jl` app (will potentially add new views, controllers, models, migrations, initializers, etc).
 
 ## Usage
 
