@@ -10,5 +10,5 @@ SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 
 [compat]
 Genie = "1, 2, 3"
-SearchLight = "0.21, 0.22, 1"
+SearchLight = "0.21, 0.22, 1, 2"
 julia = "1"
