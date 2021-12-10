@@ -70,7 +70,7 @@ This will create the necessary table.
 **HEADS UP**
 
 If your app wasn't already set up to work with `SearchLight.jl`, you need to add `SearchLight.jl` support first.
-Please check the `Genie.jl` documentation on how to do that, for example at <https://genieframework.github.io/Genie.jl/dev/tutorials/4-1--Developing_MVC_Web_Apps.html#Connecting-to-the-database>.
+Please check the `Genie.jl` documentation on how to do that, for example at <https://genieframework.github.io/Genie.jl/dev/tutorials/4-1--Developing_MVC_Web_Apps.html#Connecting-to-the-database>. This includes setting up a `db/connection.yml` and an empty migration table with `create_migrations_table` if it has not already been done.
 
 ---
 
@@ -84,9 +84,9 @@ Upon a successful login, the plugin will redirect the user to the `:success` rou
 
 Now that we have a functional authentication system, there are two ways of enforcing authentication.
 
-#### `@authenticate!`
+#### `@authenticated!`
 
-The `@authenticate!` macro will enforce authentication - meaning that it will check if a user is authenticated, and if not,
+The `@authenticated!` macro will enforce authentication - meaning that it will check if a user is authenticated, and if not,
 it will automatically throw an `ExceptionalResponse` `Exception` and force a redirect to the `:show_login` route which displays the login form.
 
 We can use this anywhere in our route handling code, for example within routes:
@@ -174,6 +174,8 @@ end
 You can create a user at the REPL like this (using stronger usernames and passwords though 🙈):
 
 ```julia
+julia> using Users
+
 julia> u = User(email = "admin@admin", name = "Admin", password = Users.hash_password("admin"), username = "admin")
 
 julia> save!(u)
