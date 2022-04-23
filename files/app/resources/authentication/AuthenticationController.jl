@@ -1,11 +1,15 @@
 module AuthenticationController
 
-using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.Flash
+using Genie, Genie.Renderer, Genie.Renderer.Html
 using SearchLight
 using GenieAuthentication
 using ViewHelper
 using Users
 using Logging
+
+using GenieSession
+using GenieSession.Flash
+using GenieSessionFileSession
 
 
 function show_login()
@@ -15,7 +19,7 @@ end
 function login()
   try
     user = findone(User, username = params(:username), password = Users.hash_password(params(:password)))
-    authenticate(user.id, Genie.Sessions.session(params()))
+    authenticate(user.id, GenieSession.session(params()))
 
     redirect(:success)
   catch ex
@@ -30,7 +34,7 @@ function success()
 end
 
 function logout()
-  deauthenticate(Genie.Sessions.session(params()))
+  deauthenticate(GenieSession.session(params()))
 
   flash("Good bye! ")
 
@@ -48,7 +52,7 @@ function register()
                 name      = params(:name),
                 email     = params(:email)) |> save!
 
-    authenticate(user.id, Genie.Sessions.session(params()))
+    authenticate(user.id, GenieSession.session(params()))
 
     "Registration successful"
   catch ex
