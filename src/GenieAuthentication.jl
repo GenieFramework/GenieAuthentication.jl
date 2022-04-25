@@ -5,6 +5,7 @@ module GenieAuthentication
 
 import Genie, SearchLight
 import GenieSession, GenieSessionFileSession
+import GeniePlugins
 
 export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!
@@ -161,7 +162,7 @@ function install(dest::String; force = false, debug = false) :: Nothing
 
     debug && "Installing from $(joinpath(src, f))"
 
-    Genie.Plugins.install(joinpath(src, f), dest, force = force)
+    GeniePlugins.install(joinpath(src, f), dest, force = force)
   end
 
   nothing
