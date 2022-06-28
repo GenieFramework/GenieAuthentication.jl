@@ -180,3 +180,18 @@ julia> u = User(email = "admin@admin", name = "Admin", password = Users.hash_pas
 
 julia> save!(u)
 ```
+---
+
+### Get current user information
+
+If the user was authenticated, check first with `authenticated()`, you can obtain the current user information with `current_user()`.
+
+```julia
+using GenieAuthentication
+
+route("/your/email") do
+  authenticated() || return "Can't get it!"
+  user = current_user()
+  user.email
+end
+```
