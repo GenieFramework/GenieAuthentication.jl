@@ -149,7 +149,7 @@ end
 Copies the plugin's files into the host Genie application.
 """
 function install(dest::String; force = false, debug = false) :: Nothing
-  src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", Genie.Plugins.FILES_FOLDER)))
+  src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", GeniePlugins.FILES_FOLDER)))
 
   debug && @info "Preparing to install from $src into $dest"
   debug && @info "Found these to install $(readdir(src))"
