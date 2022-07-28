@@ -1,7 +1,5 @@
 using Genie
 
-Genie.Sessions.init()
-
 import AuthenticationController
 import SearchLight: findone
 import Users
