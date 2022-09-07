@@ -10,7 +10,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "GenieAuthentication API" => [
-          "GenieAuthentication" => "api/genieauthentication.md",
+          "GenieAuthentication" => "API/genieauthentication.md",
         ]
     ],
 )
