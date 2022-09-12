@@ -8,7 +8,7 @@ import GenieSession, GenieSessionFileSession
 import GeniePlugins
 
 export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
-export login, logout, with_authentication, without_authentication, @authenticated!
+export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 
 const USER_ID_KEY = :__auth_user_id
 
@@ -34,10 +34,10 @@ end
 Removes the user id from the session.
 """
 function deauthenticate(session::GenieSession.Session) :: GenieSession.Session
-  GenieSession.unset!(session, USER_ID_KEY)
+  Genie.Router.params!(:SESSION, GenieSession.unset!(session, USER_ID_KEY))
 end
 function deauthenticate(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
-  deauthenticate(params[:SESSION])
+  deauthenticate(get(params, :SESSION, nothing))
 end
 
 
@@ -51,7 +51,7 @@ function is_authenticated(session::Union{GenieSession.Session,Nothing}) :: Bool
   GenieSession.isset(session, USER_ID_KEY)
 end
 function is_authenticated(params::Dict = Genie.Requests.payload()) :: Bool
-  is_authenticated(params[:SESSION])
+  is_authenticated(get(params, :SESSION, nothing))
 end
 
 const authenticated = is_authenticated
@@ -63,7 +63,21 @@ const authenticated = is_authenticated
 If the current request is not authenticated it throws an ExceptionalResponse exception.
 """
 macro authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
-  :(GenieAuthentication.authenticated() || throw($exception))
+  :(authenticated!($exception))
+end
+
+macro with_authentication!(ex, exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+  quote
+    if ! GenieAuthentication.authenticated()
+      throw($exception)
+    else
+      esc(ex)
+    end
+  end |> esc
+end
+
+function authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+  authenticated() || throw(exception)
 end
 
 
