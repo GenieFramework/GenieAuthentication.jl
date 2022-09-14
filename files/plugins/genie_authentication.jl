@@ -1,8 +1,8 @@
 using Genie
 
-import AuthenticationController
+import ..Main.UserApp.AuthenticationController
+import ..Main.UserApp.Users
 import SearchLight: findone
-import Users
 
 export current_user
 current_user() = findone(Users.User, id = get_authentication())

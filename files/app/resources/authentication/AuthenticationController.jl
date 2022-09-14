@@ -2,14 +2,15 @@ module AuthenticationController
 
 using Genie, Genie.Renderer, Genie.Renderer.Html
 using SearchLight
-using GenieAuthentication
-using ViewHelper
-using Users
 using Logging
 
-using GenieSession
-using GenieSession.Flash
-using GenieSessionFileSession
+using ..Main.UserApp.Users
+using ..Main.UserApp.ViewHelper
+
+using GenieAuthentication
+using GenieAuthentication.GenieSession
+using GenieAuthentication.GenieSession.Flash
+using GenieAuthentication.GenieSessionFileSession
 
 
 function show_login()

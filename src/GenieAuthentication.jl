@@ -6,6 +6,7 @@ module GenieAuthentication
 import Genie, SearchLight
 import GenieSession, GenieSessionFileSession
 import GeniePlugins
+import SHA
 
 export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!

@@ -1,7 +1,8 @@
 module Users
 
-using SearchLight, SearchLight.Validation, UsersValidator
-using SHA
+using SearchLight, SearchLight.Validation
+using ..Main.UserApp.UsersValidator
+using GenieAuthentication.SHA
 
 export User
 
