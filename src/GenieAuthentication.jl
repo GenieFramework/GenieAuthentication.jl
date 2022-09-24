@@ -8,7 +8,7 @@ import GenieSession, GenieSessionFileSession
 import GeniePlugins
 import SHA
 
-export authenticate, deauthenticate, is_authenticated, get_authentication, authenticated
+export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 
 const USER_ID_KEY = :__auth_user_id
@@ -56,6 +56,7 @@ function is_authenticated(params::Dict = Genie.Requests.payload()) :: Bool
 end
 
 const authenticated = is_authenticated
+const isauthenticated = is_authenticated
 
 
 """
@@ -92,7 +93,7 @@ function get_authentication(session::GenieSession.Session) :: Union{Nothing,Any}
   GenieSession.get(session, USER_ID_KEY)
 end
 function get_authentication(params::Dict = Genie.Requests.payload()) :: Union{Nothing,Any}
-  get_authentication(params[:SESSION])
+  haskey(params, :SESSION) ? get_authentication(params[:SESSION]) : nothing
 end
 
 const authentication = get_authentication

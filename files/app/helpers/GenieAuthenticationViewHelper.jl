@@ -1,4 +1,4 @@
-module ViewHelper
+module GenieAuthenticationViewHelper
 
 using GenieAuthentication.GenieSession
 using GenieAuthentication.GenieSessionFileSession

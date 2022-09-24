@@ -5,7 +5,7 @@ using SearchLight
 using Logging
 
 using ..Main.UserApp.Users
-using ..Main.UserApp.ViewHelper
+using ..Main.UserApp.GenieAuthenticationViewHelper
 
 using GenieAuthentication
 using GenieAuthentication.GenieSession
