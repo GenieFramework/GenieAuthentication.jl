@@ -1,9 +1,10 @@
 name = "GenieAuthentication"
 uuid = "e115e502-7e3a-11e9-29b2-aba8be6c6778"
 authors = ["Adrian Salceanu <e@essenciary.com>"]
-version = "2.2.0"
+version = "2.3.0"
 
 [deps]
+Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 GeniePlugins = "07906039-e6ad-44b0-b988-2f2de6a70eec"
 GenieSession = "03cc5b98-4f21-4eb6-99f2-22eced81f962"

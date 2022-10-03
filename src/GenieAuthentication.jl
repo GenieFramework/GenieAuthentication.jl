@@ -8,11 +8,14 @@ import GenieSession, GenieSessionFileSession
 import GeniePlugins
 import SHA
 
+using Base64
+
 export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 
 const USER_ID_KEY = :__auth_user_id
-
+const PARAMS_USERNAME_KEY = :username
+const PARAMS_PASSWORD_KEY = :password
 
 """
 Stores the user id on the session.
@@ -180,6 +183,37 @@ function install(dest::String; force = false, debug = false) :: Nothing
 
     GeniePlugins.install(joinpath(src, f), dest, force = force)
   end
+
+  nothing
+end
+
+
+function basicauthparams(req, res, params)
+  headers = Dict(req.headers)
+  if haskey(headers, "Authorization")
+    auth = headers["Authorization"]
+    if startswith(auth, "Basic ")
+      try
+        auth = String(base64decode(auth[7:end]))
+        auth = split(auth, ":")
+        params[PARAMS_USERNAME_KEY] = auth[1]
+        params[PARAMS_PASSWORD_KEY] = auth[2]
+      catch _
+      end
+    end
+  end
+
+  req, res, params
+end
+
+
+function isbasicauthrequest(params::Dict = Genie.Requests.payload()) :: Bool
+  haskey(params, PARAMS_USERNAME_KEY) && haskey(params, PARAMS_PASSWORD_KEY)
+end
+
+
+function __init__() :: Nothing
+  GenieAuthentication.basicauthparams in Genie.Router.pre_match_hooks || pushfirst!(Genie.Router.pre_match_hooks, GenieAuthentication.basicauthparams)
 
   nothing
 end

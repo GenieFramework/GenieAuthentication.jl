@@ -24,7 +24,7 @@ Validation.validator(u::Type{User}) = ModelValidator([
   ValidationRule(:name,     UsersValidator.not_empty)
 ])
 
-function hash_password(password::String)
+function hash_password(password::AbstractString)
   sha256(password) |> bytes2hex
 end
 
