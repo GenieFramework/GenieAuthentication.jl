@@ -12,7 +12,7 @@ using Base64
 
 export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
-
+export auth_autenticate
 
 module Token
   using Genie
@@ -73,6 +73,11 @@ function authenticate(user_id::SearchLight.DbId, session::GenieSession.Session)
 end
 function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: GenieSession.Session
   authenticate(user_id, params[:SESSION])
+end
+
+function auth_autenticate(req::Genie.Requests, res::Genie.Response, user_id::Union{String})
+  actoken = Token.generate_token()
+  set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
 end
 
 """
