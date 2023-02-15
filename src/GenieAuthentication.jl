@@ -12,7 +12,7 @@ using Base64
 
 export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
-export auth_autenticate
+export auth_authenticate
 
 module Token
   using Genie
@@ -27,7 +27,7 @@ module Token
   # const jwt_secret_key = ENV["JWT_SECRET_KEY"]
   # const encoding = JSONWebTokens.HS256(jwt_secret_key)
 
-  function generate_token(user)
+  function generate_token()
     # jwt_token = JSONWebTokens.encode(encoding, user)
     # return jwt_token
 
@@ -75,7 +75,7 @@ function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params
   authenticate(user_id, params[:SESSION])
 end
 
-function auth_autenticate(req::Genie.Requests, res::Genie.Response, user_id::Union{String})
+function auth_authenticate()
   actoken = Token.generate_token()
   set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
 end
