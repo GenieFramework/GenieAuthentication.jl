@@ -22,3 +22,5 @@ route("/logout", AuthenticationController.logout, named = :logout)
 
 # route("/register", AuthenticationController.show_register, named = :show_register)
 # route("/register", AuthenticationController.register, method = POST, named = :register)
+
+route("/auth_login", AuthenticationController.auth_login, method = POST, named = :auth_login)

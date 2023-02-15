@@ -11,6 +11,7 @@ using GenieAuthentication
 using GenieAuthentication.GenieSession
 using GenieAuthentication.GenieSession.Flash
 using GenieAuthentication.GenieSessionFileSession
+using GenieAuthentication.Token
 
 
 function show_login()
@@ -29,6 +30,26 @@ function login()
     redirect(:show_login)
   end
 end
+
+function auth_login()
+  try
+    u = findone(User, username = params(:username), password = Users.hash_password(params(:password))) 
+    if u isa User
+      
+
+    redirect(:success)
+
+    else
+      redirect(:show_login)
+    end
+    
+  catch e
+    flash("Authentication failed! $e")
+
+    redirect(:show_login)
+  end
+end
+
 
 function success()
   html(:authentication, :success, context = @__MODULE__)

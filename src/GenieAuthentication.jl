@@ -13,6 +13,51 @@ using Base64
 export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 
+
+module Token
+  using Genie
+  using Genie.Encryption
+  using Genie.Requests
+  using Genie.Responses
+  # using JSONWebTokens
+  using Random
+
+  export generate_token
+
+  # const jwt_secret_key = ENV["JWT_SECRET_KEY"]
+  # const encoding = JSONWebTokens.HS256(jwt_secret_key)
+
+  function generate_token(user)
+    # jwt_token = JSONWebTokens.encode(encoding, user)
+    # return jwt_token
+
+    Random.seed!( rand(1:100000) )
+    token = randstring(12)
+
+    return token
+  end
+
+  # JWT_SECRET_KEY ENV["JWT_SECRET_KEY"]
+
+  function __init__()
+    # generate .env file for jwt
+    # isfile(".env") && touch(".env")
+
+    # try
+    #   open(".env", "a") do iostream
+    #     write(iostream, "JWT_SECRET_KEY=genieusr")
+    #   end
+    # catch e
+    #   @error e
+    # end
+
+    # if ENV["auth"] == "yes"
+      # create migration to add access token in db
+    # end
+    # @info "!! If using token based authentication modify secret key in .env file !!"
+  end
+end
+
 const USER_ID_KEY = :__auth_user_id
 const PARAMS_USERNAME_KEY = :username
 const PARAMS_PASSWORD_KEY = :password
@@ -29,7 +74,6 @@ end
 function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: GenieSession.Session
   authenticate(user_id, params[:SESSION])
 end
-
 
 """
     deauthenticate(session)
@@ -114,7 +158,6 @@ end
 function login(user::M, params::Dict = Genie.Requests.payload())::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
   login(user, params[:SESSION])
 end
-
 
 """
     logout(session) :: Sessions.Session
