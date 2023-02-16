@@ -76,7 +76,9 @@ function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params
 end
 
 function auth_authenticate()
+  @info "inside auth authenticate"
   actoken = Token.generate_token()
+  @show actoken
   set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
 end
 
