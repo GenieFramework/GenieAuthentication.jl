@@ -17,15 +17,12 @@ Base.@kwdef mutable struct ApiToken <: AbstractModel
   created_at::Date = Dates.now()
 end
 
-Validation.validator(u::Type{ApiToken}) = ModelValidator([
-  ValidationRule(:user_id, UsersValidator.not_empty),
-  ValidationRule(:name, UsersValidator.unique),
-  ValidationRule(:type, UsersValidator.not_empty),
-  ValidationRule(:token, UsersValidator.not_empty)
-])
 
-function hash_password(password::AbstractString)
-  sha256(password) |> bytes2hex
-end
+Validation.validator(u::Type{ApiToken}) = ModelValidator([
+  ValidationRule(:user_id, ApiTokensValidator.not_empty),
+  ValidationRule(:name, ApiTokensValidator.unique),
+  ValidationRule(:type, ApiTokensValidator.not_empty),
+  ValidationRule(:token, ApiTokensValidator.not_empty)
+])
 
 end
