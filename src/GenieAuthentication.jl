@@ -57,6 +57,17 @@ module Token
   verify token for user_id
   """
   function verify(user)
+    req = Genie.Requests.request()
+
+    req["Authorization"] || return false # res.status(401)
+
+    usertokenobj = findone(ApiToken, user_id = user.id)
+
+    if req["Authorization"] == "Bearer " * usertokenobj.token
+      return true #res.status(200)
+      # redirect to protected resource
+    else
+      return false # unauthorized res.status(401)
 
   end
 
