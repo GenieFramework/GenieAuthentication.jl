@@ -37,13 +37,13 @@ module Token
     # return jwt_token
 
     Random.seed!( rand(1:100000) )
-    token = randstring(12)
+    atoken = randstring(12)
 
     # store token in db for user_id
-    u = User(email = "admin@admin", name = "Admin", password = Users.hash_password("admin"), username = "admin")
-    atoken = ApiToken(user_id = user.id, name = Dates.now(), )
+    atk = ApiToken(user_id = user.id, name= user.name * "token", token=atoken)
+    save!(atk)
 
-    return token
+    return atoken
   end
 
   """
