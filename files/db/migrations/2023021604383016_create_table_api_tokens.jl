@@ -7,9 +7,10 @@ function up()
     [
       primary_key()
       column(:user_id, :int)
-      column(:name, :string, limit = 100)
-      column(:type, :string, limit = 100)
-      column(:token, :string, limit = 500)
+      column(:name, :string, limit = 100)    # username + date.now()
+      column(:type, :string, limit = 100)    # ouath or jwt or other
+      column(:token, :string, limit = 500)   # jwt tokens are usually 100-400 so kept that range
+      column(:created_at, :date)
     ]
   end
 

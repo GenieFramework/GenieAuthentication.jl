@@ -21,6 +21,8 @@ module Token
   using Genie.Responses
   # using JSONWebTokens
   using Random
+  using SearchLight
+  using Dates
 
   export generate_token
 
@@ -38,6 +40,8 @@ module Token
     token = randstring(12)
 
     # store token in db for user_id
+    u = User(email = "admin@admin", name = "Admin", password = Users.hash_password("admin"), username = "admin")
+    atoken = ApiToken(user_id = user.id, name = Dates.now(), )
 
     return token
   end
