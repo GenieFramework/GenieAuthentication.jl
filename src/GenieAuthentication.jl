@@ -27,14 +27,39 @@ module Token
   # const jwt_secret_key = ENV["JWT_SECRET_KEY"]
   # const encoding = JSONWebTokens.HS256(jwt_secret_key)
 
-  function generate_token()
+  """
+  generate token based for user_id
+  """
+  function generate(user)
     # jwt_token = JSONWebTokens.encode(encoding, user)
     # return jwt_token
 
     Random.seed!( rand(1:100000) )
     token = randstring(12)
 
+    # store token in db for user_id
+
     return token
+  end
+
+  """
+  delete token from db for user_id
+  """
+  function revoke(user)
+
+  end
+
+  """
+  verify token for user_id
+  """
+  function verify(user)
+
+  end
+
+  """
+  expire token after certain hours/time
+  """
+  function expire(user)
   end
 
   # JWT_SECRET_KEY ENV["JWT_SECRET_KEY"]
@@ -75,11 +100,15 @@ function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params
   authenticate(user_id, params[:SESSION])
 end
 
-function auth_authenticate()
-  @info "inside auth authenticate"
-  actoken = Token.generate_token()
-  @show actoken
-  set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
+function authenticate(user)
+  # @info "inside auth authenticate"
+  # actoken = Token.generate_token()
+  # @show actoken
+  # set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
+
+  # if user_id has token in db
+        #   if token is valid
+  # else generate token and store in db
 end
 
 """
