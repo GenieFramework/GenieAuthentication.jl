@@ -14,89 +14,89 @@ export authenticate, deauthenticate, is_authenticated, isauthenticated, get_auth
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 export auth_authenticate
 
-module Token
-  using Genie
-  using Genie.Encryption
-  using Genie.Requests
-  using Genie.Responses
-  # using JSONWebTokens
-  using Random
-  using SearchLight
-  using Dates
+# module Token
+#   using Genie
+#   using Genie.Encryption
+#   using Genie.Requests
+#   using Genie.Responses
+#   # using JSONWebTokens
+#   using Random
+#   using SearchLight
+#   using Dates
 
-  export generate_token
+#   export generate_token
 
-  # const jwt_secret_key = ENV["JWT_SECRET_KEY"]
-  # const encoding = JSONWebTokens.HS256(jwt_secret_key)
+#   # const jwt_secret_key = ENV["JWT_SECRET_KEY"]
+#   # const encoding = JSONWebTokens.HS256(jwt_secret_key)
 
-  """
-  generate token based for user_id
-  """
-  function generate(user)
-    # jwt_token = JSONWebTokens.encode(encoding, user)
-    # return jwt_token
+#   """
+#   generate token based for user_id
+#   """
+#   function generate(user)
+#     # jwt_token = JSONWebTokens.encode(encoding, user)
+#     # return jwt_token
 
-    Random.seed!( rand(1:100000) )
-    atoken = randstring(12)
+#     Random.seed!( rand(1:100000) )
+#     atoken = randstring(12)
 
-    # store token in db for user_id
-    atk = ApiToken(user_id = user.id, name= user.name * "token", token=atoken)
-    save!(atk)
+#     # store token in db for user_id
+#     atk = ApiToken(user_id = user.id, name= user.name * "token", token=atoken)
+#     save!(atk)
 
-    return atoken
-  end
+#     return atoken
+#   end
 
-  """
-  delete token from db for user_id
-  """
-  function revoke(user)
+#   """
+#   delete token from db for user_id
+#   """
+#   function revoke(user)
 
-  end
+#   end
 
-  """
-  verify token for user_id
-  """
-  function verify(user)
-    req = Genie.Requests.request()
+#   """
+#   verify token for user_id
+#   """
+#   function verify(user)
+#     req = Genie.Requests.request()
 
-    req["Authorization"] || return false # res.status(401)
+#     req["Authorization"] || return false # res.status(401)
 
-    usertokenobj = findone(ApiToken, user_id = user.id)
+#     usertokenobj = findone(ApiToken, user_id = user.id)
 
-    if req["Authorization"] == "Bearer " * usertokenobj.token
-      return true #res.status(200)
-      # redirect to protected resource
-    else
-      return false # unauthorized res.status(401)
+#     if req["Authorization"] == "Bearer " * usertokenobj.token
+#       return true #res.status(200)
+#       # redirect to protected resource
+#     else
+#       return false # unauthorized res.status(401)
 
-  end
+#   end
 
-  """
-  expire token after certain hours/time
-  """
-  function expire(user)
-  end
+#   """
+#   expire token after certain hours/time
+#   """
+#   function expire(user)
+#   end
 
-  # JWT_SECRET_KEY ENV["JWT_SECRET_KEY"]
+#   # JWT_SECRET_KEY ENV["JWT_SECRET_KEY"]
 
-  function __init__()
-    # generate .env file for jwt
-    # isfile(".env") && touch(".env")
+#   function __init__()
+#     # generate .env file for jwt
+#     # isfile(".env") && touch(".env")
 
-    # try
-    #   open(".env", "a") do iostream
-    #     write(iostream, "JWT_SECRET_KEY=genieusr")
-    #   end
-    # catch e
-    #   @error e
-    # end
+#     # try
+#     #   open(".env", "a") do iostream
+#     #     write(iostream, "JWT_SECRET_KEY=genieusr")
+#     #   end
+#     # catch e
+#     #   @error e
+#     # end
 
-    # if ENV["auth"] == "yes"
-      # create migration to add access token in db
-    # end
-    # @info "!! If using token based authentication modify secret key in .env file !!"
-  end
-end
+#     # if ENV["auth"] == "yes"
+#       # create migration to add access token in db
+#     # end
+#     # @info "!! If using token based authentication modify secret key in .env file !!"
+#   end
+# end
 
 const USER_ID_KEY = :__auth_user_id
 const PARAMS_USERNAME_KEY = :username
@@ -105,26 +105,26 @@ const PARAMS_PASSWORD_KEY = :password
 """
 Stores the user id on the session.
 """
-function authenticate(user_id::Any, session::GenieSession.Session) :: GenieSession.Session
+function authenticate(user_id::Any, session::GenieSession.Session)::GenieSession.Session
   GenieSession.set!(session, USER_ID_KEY, user_id)
 end
 function authenticate(user_id::SearchLight.DbId, session::GenieSession.Session)
   authenticate(Int(user_id.value), session)
 end
-function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: GenieSession.Session
+function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any}=Genie.Requests.payload())::GenieSession.Session
   authenticate(user_id, params[:SESSION])
 end
 
-function authenticate(user)
-  # @info "inside auth authenticate"
-  # actoken = Token.generate_token()
-  # @show actoken
-  # set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
+# function authenticate(user)
+#   @info "inside auth authenticate"
+#   actoken = Token.generate_token()
+#   @show actoken
+#   set_headers!(res, Dict("Authorization" => "Bearer $actoken"))
 
-  # if user_id has token in db
-        #   if token is valid
-  # else generate token and store in db
-end
+#   if user_id has token in db
+#           if token is valid
+#   else generate token and store in db
+# end
 
 """
     deauthenticate(session)
@@ -132,10 +132,10 @@ end
 
 Removes the user id from the session.
 """
-function deauthenticate(session::GenieSession.Session) :: GenieSession.Session
+function deauthenticate(session::GenieSession.Session)::GenieSession.Session
   Genie.Router.params!(:SESSION, GenieSession.unset!(session, USER_ID_KEY))
 end
-function deauthenticate(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
+function deauthenticate(params::Dict=Genie.Requests.payload())::GenieSession.Session
   deauthenticate(get(params, :SESSION, nothing))
 end
 
@@ -146,10 +146,10 @@ end
 
 Returns `true` if a user id is stored on the session.
 """
-function is_authenticated(session::Union{GenieSession.Session,Nothing}) :: Bool
+function is_authenticated(session::Union{GenieSession.Session,Nothing})::Bool
   GenieSession.isset(session, USER_ID_KEY)
 end
-function is_authenticated(params::Dict = Genie.Requests.payload()) :: Bool
+function is_authenticated(params::Dict=Genie.Requests.payload())::Bool
   is_authenticated(get(params, :SESSION, nothing))
 end
 
@@ -162,13 +162,13 @@ const isauthenticated = is_authenticated
 
 If the current request is not authenticated it throws an ExceptionalResponse exception.
 """
-macro authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+macro authenticated!(exception=Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
   :(authenticated!($exception))
 end
 
-macro with_authentication!(ex, exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+macro with_authentication!(ex, exception=Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
   quote
-    if ! GenieAuthentication.authenticated()
+    if !GenieAuthentication.authenticated()
       throw($exception)
     else
       esc(ex)
@@ -176,7 +176,7 @@ macro with_authentication!(ex, exception = Genie.Exceptions.ExceptionalResponse(
   end |> esc
 end
 
-function authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+function authenticated!(exception=Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
   authenticated() || throw(exception)
 end
 
@@ -187,10 +187,10 @@ end
 
 Returns the user id stored on the session, if available.
 """
-function get_authentication(session::GenieSession.Session) :: Union{Nothing,Any}
+function get_authentication(session::GenieSession.Session)::Union{Nothing,Any}
   GenieSession.get(session, USER_ID_KEY)
 end
-function get_authentication(params::Dict = Genie.Requests.payload()) :: Union{Nothing,Any}
+function get_authentication(params::Dict=Genie.Requests.payload())::Union{Nothing,Any}
   haskey(params, :SESSION) ? get_authentication(params[:SESSION]) : nothing
 end
 
@@ -206,7 +206,7 @@ Persists on session the id of the user object and returns the session.
 function login(user::M, session::GenieSession.Session)::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
   authenticate(getfield(user, Symbol(pk(user))), session)
 end
-function login(user::M, params::Dict = Genie.Requests.payload())::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
+function login(user::M, params::Dict=Genie.Requests.payload())::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
   login(user, params[:SESSION])
 end
 
@@ -216,10 +216,10 @@ end
 
 Deletes the id of the user object from the session, effectively logging the user off.
 """
-function logout(session::GenieSession.Session) :: GenieSession.Session
+function logout(session::GenieSession.Session)::GenieSession.Session
   deauthenticate(session)
 end
-function logout(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
+function logout(params::Dict=Genie.Requests.payload())::GenieSession.Session
   logout(params[:SESSION])
 end
 
@@ -231,13 +231,13 @@ end
 Invokes `f` only if a user is currently authenticated on the session, `fallback` is invoked otherwise.
 """
 function with_authentication(f::Function, fallback::Function, session::Union{GenieSession.Session,Nothing})
-  if ! is_authenticated(session)
+  if !is_authenticated(session)
     fallback()
   else
     f()
   end
 end
-function with_authentication(f::Function, fallback::Function, params::Dict = Genie.Requests.payload())
+function with_authentication(f::Function, fallback::Function, params::Dict=Genie.Requests.payload())
   with_authentication(f, fallback, params[:SESSION])
 end
 
@@ -249,9 +249,9 @@ end
 Invokes `f` if there is no user authenticated on the current session.
 """
 function without_authentication(f::Function, session::GenieSession.Session)
-  ! is_authenticated(session) && f()
+  !is_authenticated(session) && f()
 end
-function without_authentication(f::Function, params::Dict = Genie.Requests.payload())
+function without_authentication(f::Function, params::Dict=Genie.Requests.payload())
   without_authentication(f, params[:SESSION])
 end
 
@@ -261,7 +261,7 @@ end
 
 Copies the plugin's files into the host Genie application.
 """
-function install(dest::String; force = false, debug = false) :: Nothing
+function install(dest::String; force=false, debug=false)::Nothing
   src = abspath(normpath(joinpath(pathof(@__MODULE__) |> dirname, "..", GeniePlugins.FILES_FOLDER)))
 
   debug && @info "Preparing to install from $src into $dest"
@@ -275,7 +275,7 @@ function install(dest::String; force = false, debug = false) :: Nothing
 
     debug && "Installing from $(joinpath(src, f))"
 
-    GeniePlugins.install(joinpath(src, f), dest, force = force)
+    GeniePlugins.install(joinpath(src, f), dest, force=force)
   end
 
   nothing
@@ -301,12 +301,12 @@ function basicauthparams(req, res, params)
 end
 
 
-function isbasicauthrequest(params::Dict = Genie.Requests.payload()) :: Bool
+function isbasicauthrequest(params::Dict=Genie.Requests.payload())::Bool
   haskey(params, PARAMS_USERNAME_KEY) && haskey(params, PARAMS_PASSWORD_KEY)
 end
 
 
-function __init__() :: Nothing
+function __init__()::Nothing
   GenieAuthentication.basicauthparams in Genie.Router.pre_match_hooks || pushfirst!(Genie.Router.pre_match_hooks, GenieAuthentication.basicauthparams)
 
   nothing
