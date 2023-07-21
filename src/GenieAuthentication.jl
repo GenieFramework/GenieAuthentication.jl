@@ -4,9 +4,11 @@ Functionality for authenticating Genie users.
 module GenieAuthentication
 
 import Genie, SearchLight
-import GenieSession, GenieSessionFileSession
+import GenieSession, GenieSessionCookieSession
 import GeniePlugins
 import SHA
+
+using Genie.Context
 
 using Base64
 
@@ -14,151 +16,98 @@ export authenticate, deauthenticate, is_authenticated, isauthenticated, get_auth
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
 
 const USER_ID_KEY = :__auth_user_id
-const PARAMS_USERNAME_KEY = :username
-const PARAMS_PASSWORD_KEY = :password
 
 """
 Stores the user id on the session.
 """
-function authenticate(user_id::Any, session::GenieSession.Session) :: GenieSession.Session
-  GenieSession.set!(session, USER_ID_KEY, user_id)
-end
-function authenticate(user_id::SearchLight.DbId, session::GenieSession.Session)
-  authenticate(Int(user_id.value), session)
-end
-function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: GenieSession.Session
-  authenticate(user_id, params[:SESSION])
+function authenticate(params::Params, user_id::Union{Int,SearchLight.DbId})
+  isa(user_id, SearchLight.DbId) && (user_id = user_id.value)
+  GenieSession.set!(params, USER_ID_KEY, user_id)
 end
 
 
 """
-    deauthenticate(session)
-    deauthenticate(params::Dict{Symbol,Any})
+    deauthenticate(params::Params)
 
 Removes the user id from the session.
 """
-function deauthenticate(session::GenieSession.Session) :: GenieSession.Session
-  Genie.Router.params!(:SESSION, GenieSession.unset!(session, USER_ID_KEY))
-end
-function deauthenticate(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
-  deauthenticate(get(params, :SESSION, nothing))
+function deauthenticate(params::Params)
+  params = GenieSession.unset!(params, USER_ID_KEY)
 end
 
 
 """
-    is_authenticated(session) :: Bool
-    is_authenticated(params::Dict{Symbol,Any}) :: Bool
+    is_authenticated(params::Params) :: Bool
 
 Returns `true` if a user id is stored on the session.
 """
-function is_authenticated(session::Union{GenieSession.Session,Nothing}) :: Bool
-  GenieSession.isset(session, USER_ID_KEY)
-end
-function is_authenticated(params::Dict = Genie.Requests.payload()) :: Bool
-  is_authenticated(get(params, :SESSION, nothing))
+function is_authenticated(params::Params) :: Bool
+  GenieSession.isset(params[:session], USER_ID_KEY)
 end
 
 const authenticated = is_authenticated
 const isauthenticated = is_authenticated
 
 
-"""
-    @authenticate!(exception::E = ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
-
-If the current request is not authenticated it throws an ExceptionalResponse exception.
-"""
-macro authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
-  :(authenticated!($exception))
-end
-
-macro with_authentication!(ex, exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
-  quote
-    if ! GenieAuthentication.authenticated()
-      throw($exception)
-    else
-      esc(ex)
-    end
-  end |> esc
-end
-
-function authenticated!(exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
-  authenticated() || throw(exception)
+function authenticated!(params; exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+  authenticated(params) || throw(exception)
 end
 
 
 """
-    get_authentication(session) :: Union{Nothing,Any}
-    get_authentication(params::Dict{Symbol,Any}) :: Union{Nothing,Any}
+    get_authentication(params::Params) :: Union{Nothing,Any}
 
 Returns the user id stored on the session, if available.
 """
-function get_authentication(session::GenieSession.Session) :: Union{Nothing,Any}
-  GenieSession.get(session, USER_ID_KEY)
-end
-function get_authentication(params::Dict = Genie.Requests.payload()) :: Union{Nothing,Any}
-  haskey(params, :SESSION) ? get_authentication(params[:SESSION]) : nothing
+function get_authentication(params::Params) :: Union{Nothing,Any}
+  haskey(params.collection, :session) ? GenieSession.get(params, USER_ID_KEY) : nothing
 end
 
 const authentication = get_authentication
 
 
 """
-    login(user, session)
-    login(user, params::Dict{Symbol,Any})
+    login(user, params::Params)
 
 Persists on session the id of the user object and returns the session.
 """
-function login(user::M, session::GenieSession.Session)::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
-  authenticate(getfield(user, Symbol(pk(user))), session)
-end
-function login(user::M, params::Dict = Genie.Requests.payload())::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
-  login(user, params[:SESSION])
+function login(params::Params, user::M)::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
+  authenticate(params, getfield(user, Symbol(pk(user))))
 end
 
 
 """
-    logout(session) :: Sessions.Session
-    logout(params::Dict{Symbol,Any}) :: Sessions.Session
+    logout(params::Params) :: Sessions.Session
 
 Deletes the id of the user object from the session, effectively logging the user off.
 """
-function logout(session::GenieSession.Session) :: GenieSession.Session
-  deauthenticate(session)
-end
-function logout(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
-  logout(params[:SESSION])
+function logout(params::Params) :: GenieSession.Session
+  deauthenticate(params[:params])
 end
 
 
 """
     with_authentication(f::Function, fallback::Function, session)
-    with_authentication(f::Function, fallback::Function, params::Dict{Symbol,Any})
+    with_authentication(f::Function, fallback::Function, params::Params)
 
 Invokes `f` only if a user is currently authenticated on the session, `fallback` is invoked otherwise.
 """
-function with_authentication(f::Function, fallback::Function, session::Union{GenieSession.Session,Nothing})
-  if ! is_authenticated(session)
-    fallback()
+function with_authentication(f::Function, fallback::Function, params)
+  if ! is_authenticated(params)
+    fallback(params)
   else
-    f()
+    f(params)
   end
-end
-function with_authentication(f::Function, fallback::Function, params::Dict = Genie.Requests.payload())
-  with_authentication(f, fallback, params[:SESSION])
 end
 
 
 """
-    without_authentication(f::Function, session)
-    without_authentication(f::Function, params::Dict{Symbol,Any})
+    without_authentication(f::Function, params::Params)
 
 Invokes `f` if there is no user authenticated on the current session.
 """
-function without_authentication(f::Function, session::GenieSession.Session)
-  ! is_authenticated(session) && f()
-end
-function without_authentication(f::Function, params::Dict = Genie.Requests.payload())
-  without_authentication(f, params[:SESSION])
+function without_authentication(f::Function, params::Params)
+  ! is_authenticated(params) && f(params)
 end
 
 
@@ -196,8 +145,8 @@ function basicauthparams(req, res, params)
       try
         auth = String(base64decode(auth[7:end]))
         auth = split(auth, ":")
-        params[PARAMS_USERNAME_KEY] = auth[1]
-        params[PARAMS_PASSWORD_KEY] = auth[2]
+        params[:username] = auth[1]
+        params[:password] = auth[2]
       catch _
       end
     end
@@ -207,8 +156,8 @@ function basicauthparams(req, res, params)
 end
 
 
-function isbasicauthrequest(params::Dict = Genie.Requests.payload()) :: Bool
-  haskey(params, PARAMS_USERNAME_KEY) && haskey(params, PARAMS_PASSWORD_KEY)
+function isbasicauthrequest(params::Params) :: Bool
+  haskey(params, :username) && haskey(params, :password)
 end
 
 
