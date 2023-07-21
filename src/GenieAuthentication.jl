@@ -14,6 +14,7 @@ using Base64
 
 export authenticate, deauthenticate, is_authenticated, isauthenticated, get_authentication, authenticated
 export login, logout, with_authentication, without_authentication, @authenticated!, @with_authentication!, authenticated!
+export isbasicauthrequest, isbearerauthrequest, current_user, current_user_id
 
 const USER_ID_KEY = :__auth_user_id
 
@@ -37,19 +38,19 @@ end
 
 
 """
-    is_authenticated(params::Params) :: Bool
+    authenticated(params::Params) :: Bool
 
 Returns `true` if a user id is stored on the session.
 """
-function is_authenticated(params::Params) :: Bool
+function authenticated(params::Params) :: Bool
+  isbearerauthrequest(params) && params[:authuser] !== nothing && return true
   GenieSession.isset(params[:session], USER_ID_KEY)
 end
+const is_authenticated = authenticated
+const isauthenticated = authenticated
 
-const authenticated = is_authenticated
-const isauthenticated = is_authenticated
 
-
-function authenticated!(params; exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
+function authenticated!(params::Params; exception = Genie.Exceptions.ExceptionalResponse(Genie.Renderer.redirect(:show_login)))
   authenticated(params) || throw(exception)
 end
 
@@ -60,7 +61,7 @@ end
 Returns the user id stored on the session, if available.
 """
 function get_authentication(params::Params) :: Union{Nothing,Any}
-  haskey(params.collection, :session) ? GenieSession.get(params, USER_ID_KEY) : nothing
+  haskey(params, :session) ? GenieSession.get(params, USER_ID_KEY) : nothing
 end
 
 const authentication = get_authentication
@@ -83,31 +84,6 @@ Deletes the id of the user object from the session, effectively logging the user
 """
 function logout(params::Params) :: GenieSession.Session
   deauthenticate(params[:params])
-end
-
-
-"""
-    with_authentication(f::Function, fallback::Function, session)
-    with_authentication(f::Function, fallback::Function, params::Params)
-
-Invokes `f` only if a user is currently authenticated on the session, `fallback` is invoked otherwise.
-"""
-function with_authentication(f::Function, fallback::Function, params)
-  if ! is_authenticated(params)
-    fallback(params)
-  else
-    f(params)
-  end
-end
-
-
-"""
-    without_authentication(f::Function, params::Params)
-
-Invokes `f` if there is no user authenticated on the current session.
-"""
-function without_authentication(f::Function, params::Params)
-  ! is_authenticated(params) && f(params)
 end
 
 
@@ -137,7 +113,7 @@ function install(dest::String; force = false, debug = false) :: Nothing
 end
 
 
-function basicauthparams(req, res, params)
+function basicauthparams(req, res, params::Params)
   headers = Dict(req.headers)
   if haskey(headers, "Authorization")
     auth = headers["Authorization"]
@@ -145,9 +121,12 @@ function basicauthparams(req, res, params)
       try
         auth = String(base64decode(auth[7:end]))
         auth = split(auth, ":")
-        params[:username] = auth[1]
-        params[:password] = auth[2]
-      catch _
+        params.collection = ImmutableDict(
+          params.collection,
+          :username => auth[1],
+          :password => auth[2]
+        )
+      catch
       end
     end
   end
@@ -161,8 +140,39 @@ function isbasicauthrequest(params::Params) :: Bool
 end
 
 
+function bearerauthparams(req, res, params::Params)
+  headers = Dict(req.headers)
+  if haskey(headers, "Authorization")
+    auth = headers["Authorization"]
+    if startswith(auth, "Bearer ")
+      try
+        token = auth[8:end] |> strip
+        params.collection = ImmutableDict(
+          params.collection,
+          :token => token
+        )
+      catch
+      end
+    end
+  end
+
+  req, res, params
+end
+
+
+
+function isbearerauthrequest(params::Params) :: Bool
+  haskey(params, :token)
+end
+
+
+current_user(params::Params) = params[:authuser]
+current_user_id(params::Params) = current_user(params) === nothing ? nothing : current_user(params).id
+
+
 function __init__() :: Nothing
   GenieAuthentication.basicauthparams in Genie.Router.pre_match_hooks || pushfirst!(Genie.Router.pre_match_hooks, GenieAuthentication.basicauthparams)
+  GenieAuthentication.bearerauthparams in Genie.Router.pre_match_hooks || pushfirst!(Genie.Router.pre_match_hooks, GenieAuthentication.bearerauthparams)
 
   nothing
 end

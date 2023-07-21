@@ -19,13 +19,14 @@ end
 
 function login(params::Params)
   try
-    user = findone(User, username = params[:post][:username], password = Users.hash_password(params[:post][:password]))
+    user = haskey(params, :token) ?
+            findone(User, token = params[:token]) :
+            findone(User, username = params[:post][:username], password = Users.hash_password(params[:post][:password]))
 
     authenticate(params, user.id)
 
     redirect(:success)
   catch ex
-    rethrow(ex)
     flash(params, "Authentication failed! ")
 
     redirect(:show_login)
@@ -53,22 +54,21 @@ function register(params::Params)
     user = User(username  = params[:post][:username],
                 password  = params[:post][:password] |> Users.hash_password,
                 name      = params[:post][:name],
-                email     = params[:post][:email]) |> save!
+                email     = params[:post][:email],
+                token     = haskey(params[:post], :token) ? params[:post][:token] : Genie.Secrets.secret()) |> save!
 
-    authenticate(user.id, GenieSession.session(params))
-
-    "Registration successful"
+    authenticate(params, user.id)
   catch ex
-    @error ex
-
     if hasfield(typeof(ex), :msg)
       flash(params, ex.msg)
     else
       flash(params, string(ex))
     end
 
-    redirect(:show_register)
+    redirect(:register)
   end
+
+  redirect(:success)
 end
 
 end

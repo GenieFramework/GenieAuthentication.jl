@@ -13,6 +13,7 @@ Base.@kwdef mutable struct User <: AbstractModel
   password::String = ""
   name::String = ""
   email::String = ""
+  token::String = ""
 end
 
 Validation.validator(u::Type{User}) = ModelValidator([
