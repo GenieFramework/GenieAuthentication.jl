@@ -4,7 +4,7 @@ Functionality for authenticating Genie users.
 module GenieAuthentication
 
 import Genie, SearchLight
-import GenieSession, GenieSessionCookieSession
+import GenieSession
 import GeniePlugins
 import SHA
 
@@ -17,6 +17,7 @@ export login, logout, with_authentication, without_authentication, @authenticate
 export isbasicauthrequest, isbearerauthrequest, current_user, current_user_id
 
 const USER_ID_KEY = :__auth_user_id
+
 
 """
 Stores the user id on the session.
@@ -158,7 +159,6 @@ function bearerauthparams(req, res, params::Params)
 
   req, res, params
 end
-
 
 
 function isbearerauthrequest(params::Params) :: Bool
