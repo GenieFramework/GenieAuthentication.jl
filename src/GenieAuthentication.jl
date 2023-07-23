@@ -122,11 +122,8 @@ function basicauthparams(req, res, params::Params)
       try
         auth = String(base64decode(auth[7:end]))
         auth = split(auth, ":")
-        params.collection = ImmutableDict(
-          params.collection,
-          :username => auth[1],
-          :password => auth[2]
-        )
+        params.collection[:username] = auth[1]
+        params.collection[:password] = auth[2]
       catch
       end
     end
@@ -147,11 +144,7 @@ function bearerauthparams(req, res, params::Params)
     auth = headers["Authorization"]
     if startswith(auth, "Bearer ")
       try
-        token = auth[8:end] |> strip
-        params.collection = ImmutableDict(
-          params.collection,
-          :token => token
-        )
+        params.collection[:token] = auth[8:end] |> strip
       catch
       end
     end

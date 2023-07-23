@@ -9,7 +9,7 @@ function authuser(req, res, params)
     nothing
   end
 
-  params.collection = ImmutableDict(params.collection, :authuser => user)
+  params.collection[:authuser] = user
 
   req, res, params
 end
