@@ -22,3 +22,13 @@ route("/logout", AuthenticationController.logout, named = :logout)
 
 # route("/register", AuthenticationController.show_register, named = :show_register)
 # route("/register", AuthenticationController.register, method = POST, named = :register)
+
+#===# 
+
+# UNCOMMENT TO ENABLE GOOGLE AUTHENTICATION
+
+route("/auth/google", AuthenticationController.google_auth, named = :google_auth)
+route("/auth/google/callback", AuthenticationController.google_callback, named = :google_callback)
+route("/pass", AuthenticationController.pass, named = :pass)
+route("/fail", AuthenticationController.fail, named = :fail)
+

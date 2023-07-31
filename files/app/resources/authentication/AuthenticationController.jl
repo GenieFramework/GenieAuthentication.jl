@@ -1,6 +1,6 @@
 module AuthenticationController
 
-using Genie, Genie.Renderer, Genie.Renderer.Html
+using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.HTTPUtils.HTTP, Genie.JSON
 using SearchLight
 using Logging
 
@@ -12,6 +12,9 @@ using GenieAuthentication.GenieSession
 using GenieAuthentication.GenieSession.Flash
 using GenieAuthentication.GenieSessionFileSession
 
+function generate_query_string(params::Dict{String,String})
+  return join(["$k=$(HTTP.escapeuri(v))" for (k, v) in params], '&')
+end
 
 function show_login()
   html(:authentication, :login, context = @__MODULE__)
@@ -67,6 +70,62 @@ function register()
 
     redirect(:show_register)
   end
+end
+
+function google_auth()
+  authUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+  params = Dict(
+      "client_id" => ENV["GOOGLE_CLIENT_ID"],
+      "redirect_uri" => ENV["REDIRECT_URI"],
+      "response_type" => "code",
+      "scope" => "https://www.googleapis.com/auth/userinfo.profile",
+      "access_type" => "offline",
+      "include_granted_scopes" => "true",
+      "state" => "pass-through value"
+  )
+  query_string = generate_query_string(params)
+
+  Genie.Renderer.redirect(authUrl * "?" * query_string)
+end
+
+function google_callback()
+  authUrl = "https://oauth2.googleapis.com/token"
+  code = params(:code, nothing)
+
+  headers = ["Content-Type" => "application/x-www-form-urlencoded"]
+
+  data = Dict(
+      "code" => code,
+      "client_id" => ENV["GOOGLE_CLIENT_ID"],
+      "client_secret" => ENV["GOOGLE_CLIENT_SECRET"],
+      "redirect_uri" => ENV["REDIRECT_URI"],
+      "grant_type" => "authorization_code"
+  )
+
+  try
+      query_string = generate_query_string(data)
+      response = HTTP.post(authUrl, headers, query_string)
+      access_token = JSON.parse(String(response.body))["access_token"]
+
+      user_obj = HTTP.get(
+          "https://www.googleapis.com/oauth2/v1/userinfo", 
+          ["Authorization" => "Bearer $access_token"]
+      )
+      user_info = JSON.parse(String(user_obj.body))
+
+      redirect("/pass")
+  catch ex
+      @info ex
+      redirect("/fail")
+  end
+end
+
+function pass()
+  return "pass"
+end
+
+function fail()
+  return "fail"
 end
 
 end
