@@ -113,10 +113,27 @@ function google_callback()
       )
       user_info = JSON3.read(String(user_obj.body), Dict)
 
-      redirect("/pass")
+      username = user_info["email"]  # or some other unique identifier
+      password = Users.hash_password(randstring(20))  # generate a random password
+      name = user_info["name"]
+      email = user_info["email"]
+
+      try
+        user = User(username = username,
+                    password = password, 
+                    name = name, 
+                    email = email, 
+                    token = access_token) |> save!
+      catch ex
+        @error "Failed to save user: $ex"
+        # handle the error, possibly by redirecting to an error page
+      end
+
+      #TODO: Authenticate show register
+      #TODO: "Registration successful"
   catch ex
       @info ex
-      redirect("/fail")
+      #TODO: FAILED REGISTRATION
   end
 end
 
