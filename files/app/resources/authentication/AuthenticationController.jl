@@ -118,17 +118,12 @@ function google_callback()
       name = user_info["name"]
       email = user_info["email"]
 
-      try
-        user = User(username = username,
-                    password = password, 
-                    name = name, 
-                    email = email, 
-                    token = access_token) |> save!
-      catch ex
-        @error "Failed to save user: $ex"
-        # handle the error, possibly by redirecting to an error page
-      end
-
+      user = User(username = username,
+                  password = password, 
+                  name = name, 
+                  email = email, 
+                  token = access_token) |> save!
+    
       #TODO: Authenticate show register
       #TODO: "Registration successful"
   catch ex
