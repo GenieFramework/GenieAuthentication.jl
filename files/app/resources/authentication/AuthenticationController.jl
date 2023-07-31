@@ -1,6 +1,6 @@
 module AuthenticationController
 
-using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.HTTPUtils.HTTP, Genie.JSON
+using Genie, Genie.Renderer, Genie.Renderer.Html, Genie.HTTPUtils.HTTP, Genie.Renderers.Json.JSON3
 using SearchLight
 using Logging
 
@@ -105,13 +105,13 @@ function google_callback()
   try
       query_string = generate_query_string(data)
       response = HTTP.post(authUrl, headers, query_string)
-      access_token = JSON.parse(String(response.body))["access_token"]
+      access_token = JSON3.read(String(response.body), Dict)["access_token"]
 
       user_obj = HTTP.get(
           "https://www.googleapis.com/oauth2/v1/userinfo", 
           ["Authorization" => "Bearer $access_token"]
       )
-      user_info = JSON.parse(String(user_obj.body))
+      user_info = JSON3.read(String(user_obj.body), Dict)
 
       redirect("/pass")
   catch ex
