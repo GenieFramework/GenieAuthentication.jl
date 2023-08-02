@@ -29,6 +29,4 @@ route("/logout", AuthenticationController.logout, named = :logout)
 
 route("/auth/google", AuthenticationController.google_auth, named = :google_auth)
 route("/auth/google/callback", AuthenticationController.google_callback, named = :google_callback)
-route("/pass", AuthenticationController.pass, named = :pass)
-route("/fail", AuthenticationController.fail, named = :fail)
 
