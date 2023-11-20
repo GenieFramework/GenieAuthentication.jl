@@ -16,6 +16,7 @@ export login, logout, with_authentication, without_authentication, @authenticate
 const USER_ID_KEY = :__auth_user_id
 const PARAMS_USERNAME_KEY = :username
 const PARAMS_PASSWORD_KEY = :password
+const PARAMS_SESSION_KEY = GenieSession.PARAMS_SESSION_KEY # :SESSION
 
 """
 Stores the user id on the session.
@@ -27,7 +28,7 @@ function authenticate(user_id::SearchLight.DbId, session::GenieSession.Session)
   authenticate(Int(user_id.value), session)
 end
 function authenticate(user_id::Union{String,Symbol,Int,SearchLight.DbId}, params::Dict{Symbol,Any} = Genie.Requests.payload()) :: GenieSession.Session
-  authenticate(user_id, params[:SESSION])
+  authenticate(user_id, params[PARAMS_SESSION_KEY])
 end
 
 
@@ -38,10 +39,10 @@ end
 Removes the user id from the session.
 """
 function deauthenticate(session::GenieSession.Session) :: GenieSession.Session
-  Genie.Router.params!(:SESSION, GenieSession.unset!(session, USER_ID_KEY))
+  Genie.Router.params!(PARAMS_SESSION_KEY, GenieSession.unset!(session, USER_ID_KEY))
 end
 function deauthenticate(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
-  deauthenticate(get(params, :SESSION, nothing))
+  deauthenticate(get(params, PARAMS_SESSION_KEY, nothing))
 end
 
 
@@ -55,7 +56,7 @@ function is_authenticated(session::Union{GenieSession.Session,Nothing}) :: Bool
   GenieSession.isset(session, USER_ID_KEY)
 end
 function is_authenticated(params::Dict = Genie.Requests.payload()) :: Bool
-  is_authenticated(get(params, :SESSION, nothing))
+  is_authenticated(get(params, PARAMS_SESSION_KEY, nothing))
 end
 
 const authenticated = is_authenticated
@@ -96,7 +97,7 @@ function get_authentication(session::GenieSession.Session) :: Union{Nothing,Any}
   GenieSession.get(session, USER_ID_KEY)
 end
 function get_authentication(params::Dict = Genie.Requests.payload()) :: Union{Nothing,Any}
-  haskey(params, :SESSION) ? get_authentication(params[:SESSION]) : nothing
+  haskey(params, PARAMS_SESSION_KEY) ? get_authentication(params[PARAMS_SESSION_KEY]) : nothing
 end
 
 const authentication = get_authentication
@@ -112,7 +113,7 @@ function login(user::M, session::GenieSession.Session)::Union{Nothing,GenieSessi
   authenticate(getfield(user, Symbol(pk(user))), session)
 end
 function login(user::M, params::Dict = Genie.Requests.payload())::Union{Nothing,GenieSession.Session} where {M<:SearchLight.AbstractModel}
-  login(user, params[:SESSION])
+  login(user, params[PARAMS_SESSION_KEY])
 end
 
 
@@ -126,7 +127,7 @@ function logout(session::GenieSession.Session) :: GenieSession.Session
   deauthenticate(session)
 end
 function logout(params::Dict = Genie.Requests.payload()) :: GenieSession.Session
-  logout(params[:SESSION])
+  logout(params[PARAMS_SESSION_KEY])
 end
 
 
@@ -144,7 +145,7 @@ function with_authentication(f::Function, fallback::Function, session::Union{Gen
   end
 end
 function with_authentication(f::Function, fallback::Function, params::Dict = Genie.Requests.payload())
-  with_authentication(f, fallback, params[:SESSION])
+  with_authentication(f, fallback, params[PARAMS_SESSION_KEY])
 end
 
 
@@ -158,7 +159,7 @@ function without_authentication(f::Function, session::GenieSession.Session)
   ! is_authenticated(session) && f()
 end
 function without_authentication(f::Function, params::Dict = Genie.Requests.payload())
-  without_authentication(f, params[:SESSION])
+  without_authentication(f, params[PARAMS_SESSION_KEY])
 end
 
 
