@@ -18,16 +18,15 @@ function show_login()
 end
 
 function login()
-  try
-    user = findone(User, username = params(:username), password = Users.hash_password(params(:password)))
+  user = findone(User, username = params(:username))
+  if !isnothing(user) && verify_password(user.password, params(:password))
     authenticate(user.id, GenieSession.session(params()))
-
-    redirect(:success)
-  catch ex
-    flash("Authentication failed! ")
-
-    redirect(:show_login)
+    return redirect(:success)
   end
+  
+  flash("Authentication failed! ")
+  
+  redirect(:show_login)
 end
 
 function success()
@@ -48,10 +47,12 @@ end
 
 function register()
   try
-    user = User(username  = params(:username),
-                password  = params(:password) |> Users.hash_password,
-                name      = params(:name),
-                email     = params(:email)) |> save!
+    user = User(
+      username = params(:username),
+      password = params(:password) |> hash_password,
+      name = params(:name),
+      email = params(:email)
+    ) |> save!
 
     authenticate(user.id, GenieSession.session(params()))
 
