@@ -1,7 +1,7 @@
 name = "GenieAuthentication"
 uuid = "e115e502-7e3a-11e9-29b2-aba8be6c6778"
 authors = ["Adrian Salceanu <e@essenciary.com>"]
-version = "2.2.0"
+version = "2.2.1"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -14,7 +14,7 @@ SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 Sodium = "4f5b5e99-b0ad-42cd-b47a-334e172ec8bd"
 
 [compat]
-Genie = "5"
+Genie = "5, 6"
 GeniePlugins = "1"
 GenieSession = "1"
 GenieSessionFileSession = "1"
